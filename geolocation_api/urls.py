@@ -15,7 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from geo_api_app.views import LocationView, AddLocationView, DeleteLocationView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('location/<str:ip_domain>/', LocationView.as_view()),
+    path('location/add/<str:ip_domain>/', AddLocationView.as_view()),
+    path('location/del/<str:ip_domain>/', DeleteLocationView.as_view())
+    
 ]

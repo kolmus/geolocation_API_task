@@ -8,15 +8,26 @@ from validators import domain, ipv4
 from validators.utils import ValidationFailure
 from socket import gethostbyname
 import requests
-import json
+# import json
 
 from .models import Location
-from .serializers import AddLocationSerializer, GetLocationSerializer
+from .serializers import GetLocationSerializer
 
 
 
-class LokalizationView(APIView):
+class LocationView(APIView):
     def get_object(self, ip_domain):
+        """Checks validatiof of IP adress or Domain, 
+
+        Args:
+            ip_domain (str): IPv4 or Domain name, No objects with this IP adress in database 
+
+        Raises:
+            Http404: Invalid IP or domain name
+
+        Returns:
+            location (obj): Object of Location model with Exact IP adress 
+        """        
         try:                                # check ip
             valid_ip = ipv4(ip_domain)
             valid_ip = ip_domain
@@ -34,18 +45,53 @@ class LokalizationView(APIView):
         except Location.DoesNotExist:
             raise Http404
     
+    
     def get(self, request, ip_domain, format=None):
+        """View to get data about exact IP or Domain from database. 
+
+        Args:
+            ip_domain (str): IPv4 or domain name
+
+        Returns:
+            Data from  Database about exact ip
+        """        
         loc_object = self.get_object(ip_domain=ip_domain)
         serializer = GetLocationSerializer(loc_object, context={'request': request})
         return Response(serializer.data)
     
+    
+class DeleteLocationView(APIView):
     def delete(self, request, ip_domain, format=None):
+        """Delete objects from database
+
+        Args:
+            ip_domain (str): IPv4 or domain name
+
+        Returns:
+            HTTP_204: Object deleted
+        """        
         loc_object = self.get_object(ip_domain=ip_domain)
         loc_object.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+    
+class AddLocationView(APIView):
     def post(self, request, ip_domain, format=None):
-        loc_object = Location()
+        """POST method checks validation of IP or Domain, turns Domein into IPv4 and fetch to external API on https://ipstack.com for data to save new object of Location Model
+
+        Args:
+            ip_domain (str): IPv4 or domain name
+
+        Raises:
+            Http404: invalid IP or invalid domain
+
+        Returns:
+            HTTP_201: Created
+            HTTP_429: Over 100 requests in this month to ipstack 
+            HTTP_504: Timeout to ipstack API
+            HTTP_404: Other Problems
+        """        
+        print("##################################  w środku, działa")
         try:                                # check ip
             valid_ip = ipv4(ip_domain)
             valid_ip = ip_domain
@@ -58,9 +104,38 @@ class LokalizationView(APIView):
                 valid_ip = gethostbyname(ip_domain)
             except:
                 raise Http404
-    ##### Import here #####
-        
 
+            from geolocation_api.local_settings import API_KEY
+            try:
+                response = requests.get(f'http://api.ipstack.com/{valid_ip}?access_key={API_KEY}')
+                response.raise_for_status()
+                if response.status_code == 200:
+                    loc_object = Location()
+                    loc_object.ipv4 = valid_ip
+                    loc_object.continent = response.json()['continent_name']
+                    loc_object.country = response.json()['country_name']
+                    loc_object.region = response.json()['California']
+                    loc_object.city = response.json()['city']
+                    loc_object.zip_code = response.json()['90012']
+                    loc_object.lattitude = response.json()['latitude']
+                    loc_object.longitude = response.json()['longitude']
+                    loc_object.save()
+                    return Response(status=status.HTTP_201_CREATED)
+                if response.status_code == 104:
+                    return Response(status=status.HTTP_429_TOO_MANY_REQUESTS)
+            except requests.exceptions.HTTPError as error:
+                print(error)
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            except requests.Timeout as error:
+                print(error)
+                return Response(status=status.HTTP_504_GATEWAY_TIMEOUT)
+            
+            
+            
+
+        
+        
+        
 
 """Exampe of response {
     "ip": "134.201.250.155", 
