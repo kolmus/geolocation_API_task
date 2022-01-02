@@ -20,12 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%gtw7##e0)nttar+o$5wrzs9_txs5$%g8v5bf^kcljxkzyb1^d'
+from .local_settings import SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+from .local_settings import DEBUG
 
-ALLOWED_HOSTS = []
+from .local_settings import ALLOWED_HOSTS
 
 
 # Application definition
@@ -75,15 +75,7 @@ WSGI_APPLICATION = 'geolocation_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'HOST': '127.0.0.1',
-        'NAME': 'sofomo_db',
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'USER': 'postgres',
-        'PASSWORD': 'coderslab',
-    }
-}
+from .local_settings import DATABASES
 
 
 # Password validation
