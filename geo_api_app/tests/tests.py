@@ -1,6 +1,8 @@
 from django.db.models import fields
 from geo_api_app.models import Location
 import pytest
+from socket import gethostbyname
+
 
 @pytest.mark.django_db
 def test_show_location(client, location):
@@ -28,4 +30,12 @@ def test_delete_location(client, location):
     assert response.status_code == 204
     locations_ids = [loc.id for loc in Location.objects.all()]
     assert loc_id not in  locations_ids
+
+@pytest.mark.django_db
+def test_add_location(client, location):
+    localization_count = Location.objects.count()
+    ip_to_test = gethostbyname('google.com')
+    response = client.post(f'/location/add/{ip_to_test}/', {}, format='json')
     
+    assert response.status_code == 201
+    assert Location.objects.count() == localization_count + 1

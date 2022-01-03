@@ -106,12 +106,13 @@ class AddLocationView(APIView):
                 loc_object.ipv4 = valid_ip
                 loc_object.continent = response.json()['continent_name']
                 loc_object.country = response.json()['country_name']
-                loc_object.region = response.json()['California']
+                loc_object.region = response.json()['region_name']
                 loc_object.city = response.json()['city']
-                loc_object.zip_code = response.json()['90012']
+                loc_object.zip_code = response.json()['zip']
                 loc_object.lattitude = response.json()['latitude']
                 loc_object.longitude = response.json()['longitude']
                 loc_object.save()
+                print(loc_object)
                 return Response(status=status.HTTP_201_CREATED)
             if response.status_code == 104:
                 return Response(status=status.HTTP_429_TOO_MANY_REQUESTS)
