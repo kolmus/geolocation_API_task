@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Location (models.Model):
-    ipv4 = models.CharField(max_length=16, verbose_name='IPv4 adress or domain')
+    ipv4 = models.CharField(max_length=16, verbose_name='IPv4 adress or domain', unique=True)
     continent = models.CharField(max_length=32, verbose_name='Continent name')
     country = models.CharField(max_length=64, verbose_name='Country name')
     region = models.CharField(max_length=64, verbose_name='Region')

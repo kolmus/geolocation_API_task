@@ -70,6 +70,7 @@ class DeleteLocationView(APIView):
             HTTP_204: Object deleted
         """        
         valid_ip = validate_ip_domain(ip_domain=ip_domain)
+        print(valid_ip)
         try:                                # check if exists
             loc_object = Location.objects.get(ipv4=valid_ip)
         except Location.DoesNotExist:

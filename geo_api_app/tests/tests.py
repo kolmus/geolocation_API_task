@@ -1,3 +1,4 @@
+from django.db.models import fields
 from geo_api_app.models import Location
 import pytest
 
@@ -18,3 +19,13 @@ def test_show_location(client, location):
         'add_datetime'
     ):
         assert field in response.data
+
+@pytest.mark.django_db
+def test_delete_location(client, location):
+    loc_obj = Location.objects.first()
+    loc_id = loc_obj.id
+    response = client.delete(f'/location/del/{loc_obj.ipv4}/', {}, format='json')
+    assert response.status_code == 204
+    locations_ids = [loc.id for loc in Location.objects.all()]
+    assert loc_id not in  locations_ids
+    

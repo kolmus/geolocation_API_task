@@ -3,7 +3,7 @@ from rest_framework import serializers
 from geo_api_app.models import Location
 
 
-# class AddLocationSerializer(serializers.Serializer):
+# class AddDeleteLocationSerializer(serializers.Serializer):
 #     ip_domain = serializers.CharField(max_length=64, null=True)
 
 
