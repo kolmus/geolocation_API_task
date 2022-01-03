@@ -3,6 +3,7 @@ from django.http import Http404
 from rest_framework import serializers, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from validators import domain, ipv4
 from validators.utils import ValidationFailure
@@ -50,6 +51,8 @@ class LocationView(APIView):
         Returns:
             Data from  Database about exact ip
         """        
+        permission_classes = (IsAuthenticated,)
+
         valid_ip = validate_ip_domain(ip_domain=ip_domain)
         try:                                # check if exists
             loc_object = Location.objects.get(ipv4=valid_ip)
@@ -69,6 +72,8 @@ class DeleteLocationView(APIView):
         Returns:
             HTTP_204: Object deleted
         """        
+        permission_classes = (IsAuthenticated,)
+
         valid_ip = validate_ip_domain(ip_domain=ip_domain)
         print(valid_ip)
         try:                                # check if exists
@@ -95,6 +100,8 @@ class AddLocationView(APIView):
             HTTP_504: Timeout to ipstack API
             HTTP_404: Other Problems
         """        
+        permission_classes = (IsAuthenticated,)
+
         print("##################################  w środku, działa")
         valid_ip = validate_ip_domain(ip_domain=ip_domain)
         from geolocation_api.local_settings import API_KEY
