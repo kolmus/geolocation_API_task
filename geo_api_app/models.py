@@ -12,6 +12,6 @@ class Location (models.Model):
     lattitude = models.CharField(max_length=32, verbose_name='Lattitude')
     longitude = models.CharField(max_length=32, verbose_name='Longitude')
     add_datetime = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return f'Ip  => {self.ipv4}'

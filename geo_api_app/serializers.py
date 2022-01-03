@@ -11,4 +11,3 @@ class GetLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ('id', 'ipv4', 'continent', 'country', 'region', 'city', 'zip_code', 'lattitude', 'longitude', 'add_datetime')
-        
