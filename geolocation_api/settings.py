@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 import django_on_heroku
 
@@ -21,12 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-from .local_settings import SECRET_KEY
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-from .local_settings import DEBUG
 
-from .local_settings import ALLOWED_HOSTS
+try:
+    from .local_settings import DEBUG
+    from .local_settings import ALLOWED_HOSTS
+except ModuleNotFoundError:
+    DEBUG = True
+    ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -79,9 +83,15 @@ WSGI_APPLICATION = 'geolocation_api.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
-from .local_settings import DATABASES
-
+try:
+    from .local_settings import DATABASES
+except ModuleNotFoundError:
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'geolocation',
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
