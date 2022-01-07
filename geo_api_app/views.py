@@ -75,7 +75,6 @@ class DeleteLocationView(APIView):
         permission_classes = (IsAuthenticated,)
 
         valid_ip = validate_ip_domain(ip_domain=ip_domain)
-        print(valid_ip)
         try:                                # check if exists
             loc_object = Location.objects.get(ipv4=valid_ip)
         except Location.DoesNotExist:
@@ -102,7 +101,6 @@ class AddLocationView(APIView):
         """        
         permission_classes = (IsAuthenticated,)
 
-        print("##################################  w środku, działa")
         valid_ip = validate_ip_domain(ip_domain=ip_domain)
         from geolocation_api.local_settings import API_KEY
         try:
@@ -119,15 +117,12 @@ class AddLocationView(APIView):
                 loc_object.lattitude = response.json()['latitude']
                 loc_object.longitude = response.json()['longitude']
                 loc_object.save()
-                print(loc_object)
                 return Response(status=status.HTTP_201_CREATED)
             if response.status_code == 104:
                 return Response(status=status.HTTP_429_TOO_MANY_REQUESTS)
         except requests.exceptions.HTTPError as error:
-            print(error)
             return Response(status=status.HTTP_404_NOT_FOUND)
         except requests.Timeout as error:
-            print(error)
             return Response(status=status.HTTP_504_GATEWAY_TIMEOUT)
 
 
