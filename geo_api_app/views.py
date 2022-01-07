@@ -3,6 +3,7 @@ from django.http import Http404
 from rest_framework import serializers, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from validators import domain, ipv4
 from validators.utils import ValidationFailure
@@ -50,6 +51,8 @@ class LocationView(APIView):
         Returns:
             Data from  Database about exact ip
         """        
+        permission_classes = (IsAuthenticated,)
+
         valid_ip = validate_ip_domain(ip_domain=ip_domain)
         try:                                # check if exists
             loc_object = Location.objects.get(ipv4=valid_ip)
@@ -69,8 +72,9 @@ class DeleteLocationView(APIView):
         Returns:
             HTTP_204: Object deleted
         """        
+        permission_classes = (IsAuthenticated,)
+
         valid_ip = validate_ip_domain(ip_domain=ip_domain)
-        print(valid_ip)
         try:                                # check if exists
             loc_object = Location.objects.get(ipv4=valid_ip)
         except Location.DoesNotExist:
@@ -95,7 +99,8 @@ class AddLocationView(APIView):
             HTTP_504: Timeout to ipstack API
             HTTP_404: Other Problems
         """        
-        print("##################################  w środku, działa")
+        permission_classes = (IsAuthenticated,)
+
         valid_ip = validate_ip_domain(ip_domain=ip_domain)
         from geolocation_api.local_settings import API_KEY
         try:
@@ -112,15 +117,12 @@ class AddLocationView(APIView):
                 loc_object.lattitude = response.json()['latitude']
                 loc_object.longitude = response.json()['longitude']
                 loc_object.save()
-                print(loc_object)
                 return Response(status=status.HTTP_201_CREATED)
             if response.status_code == 104:
                 return Response(status=status.HTTP_429_TOO_MANY_REQUESTS)
         except requests.exceptions.HTTPError as error:
-            print(error)
             return Response(status=status.HTTP_404_NOT_FOUND)
         except requests.Timeout as error:
-            print(error)
             return Response(status=status.HTTP_504_GATEWAY_TIMEOUT)
 
 

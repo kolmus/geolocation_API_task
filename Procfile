@@ -1,0 +1,1 @@
+web: gunicorn geolocation_api.wsgi
